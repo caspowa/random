@@ -12,6 +12,14 @@
             margin-right: auto;
         }
 
+        .roll {
+            height: 300px;
+            width: 300px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         button {
             margin-top: 20px;
             width: 100%;
@@ -19,6 +27,51 @@
     </style>
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="http://www.goat1000.com/jquery.tagcanvas.min.js?2.8"></script>
+    <script>
+        $(document).ready(function() {
+            $('#candidates').val('Candidate 1\nCandidate 2\nCandidate 3\nCandidate 4\n...');
+
+            $('button').click(function () {
+                var strCandidates = $.trim($('#candidates').val());
+                if (strCandidates.length === 0) {
+                    $('#winError').modal('show');
+                } else {
+                    var candidates = strCandidates.split('\n');
+
+                    // Create a list of candidates for the roll
+                    $('#rollingCandidates').empty();
+                    for (var i=0; i < candidates.length; i++) {
+                        $('#rollingCandidates').append(
+                            $('<li>').append($('<a>').append(candidates[i])
+                        ));
+                    }
+
+                    // Display a windows with the roll
+                    $('#canvas').tagcanvas({
+                        shape: 'sphere',
+                        initial: [-1.0, 1.0],
+                        lock: 'xy',
+                        shuffleTags: true,
+                        textColour: '#F0AD4E',
+                        textHeight: 18,
+                        outlineMethod: "none"
+                    });
+                    $('#winRoll').modal('show');
+
+                    // Wait 5 seconds and elect a winner
+                    setTimeout(function(){
+                        $('#canvas').tagcanvas('pause');
+                        $('#winRoll').modal('hide');
+
+                        var winner = Math.floor(Math.random() * candidates.length);
+                        $('#winner').text(candidates[winner]);
+                        $('#winWinner').modal('show');
+                    }, 5000);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <h1 class="masthead text-center">
@@ -42,6 +95,19 @@
         </div>
     </div>
 
+    <div id="winRoll" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div id="canvasContainer" class="roll">
+                    <canvas width="300px" height="300px" id="canvas">
+                        <ul id="rollingCandidates">
+                        </ul>
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="winWinner" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -52,23 +118,5 @@
         </div>
     </div>
 
-    <script>
-        $('#candidates').val('Candidate 1\nCandidate 2\nCandidate 3\nCandidate 4\n...');
-
-        $('button').click(function () {
-            var strCandidates = $.trim($('#candidates').val());
-            if (strCandidates.length === 0) {
-                $('#winError').modal('show');
-            } else {
-                var candidates = strCandidates.split("\n");
-                var winner;
-                for (var i = 0; i < 1000; i ++) {
-                    winner = Math.floor(Math.random() * candidates.length);
-                }
-                $('#winner').text(candidates[winner]);
-                $('#winWinner').modal('show');
-            }
-        });
-    </script>
 </body>
 </html>
